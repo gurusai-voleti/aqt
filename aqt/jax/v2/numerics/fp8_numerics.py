@@ -120,7 +120,12 @@ class Fp8Numerics(numerics.AqtNumerics):
     # TODO(lew): We can round more efficiently if stochastic_rounding == True.
     x = round_to_nearest_even(x, self.dtype)
 
-    return x, res
+    # An optimization barrier is inserted here to prevent the jit compiler from
+    # optimizing away the fp32 -> fp8 -> fp32 conversion, which is intended for
+    # quantization.
+    x_realized = jax.lax.optimization_barrier(x)
+
+    return x_realized, res
 
   def vjp_bwd(self, res, grad):
     # This is gradient of clip.
