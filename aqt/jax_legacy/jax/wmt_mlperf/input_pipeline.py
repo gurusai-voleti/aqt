@@ -177,7 +177,7 @@ def train_sentencepiece(dataset,
   SentencePieceTrainer.Train(argstr)
   # Only write to CNS if host id is 0 to prevent race conditions during
   # multihost training, otherwise wait until host 0 has written the file.
-  if jax.host_id() == 0:
+  if jax.process_index() == 0:
     # Use an intermediate filename that is renamed to the target name to address
     # create and fill delays.  Using finalization (CNS) as a indicator is not
     # portable.
